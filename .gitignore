@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+Debug/
+Release/
+.vs/
+*.sln
+*.aps
+premake5.exe
