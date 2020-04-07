@@ -1,5 +1,6 @@
 #include "GarrysMod/Lua/Interface.h"
 #include "sdk/public/steam/isteamgameserver.h"
+#include "fwensCallback.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -7,7 +8,6 @@ using namespace GarrysMod::Lua;
 
 LUA_FUNCTION(GetInSteamGroup)
 {
-	
 	if (!LUA->IsType(1, Type::STRING))
 	{
 		LUA->ArgError(1, "expected string");
@@ -43,9 +43,9 @@ LUA_FUNCTION(GetInSteamGroup)
 	// If Steam isn't available, this will return false. 
 	bool steamAvailable = SteamGameServer()->RequestUserGroupStatus(player, groupID);
 	LUA->PushBool(steamAvailable);
+	
 	return 1;
 }
-
 
 
 GMOD_MODULE_OPEN()
@@ -63,12 +63,17 @@ GMOD_MODULE_OPEN()
 		LUA->Call(1, 0);
 	LUA->Pop();
 
-	//STEAM_GAMESERVER_CALLBACK(fwensCallback, HandleCallbackRequest, GSClientGroupStatus_t);
+	Fwens* fwenVar = Fwens::GetInstance();
+	fwenVar->SetLuaInstance(LUA);
 
 	return 0;
 }
 
 GMOD_MODULE_CLOSE()
 {
+	Fwens* fwenVar = Fwens::GetInstance();
+	delete fwenVar;
+
 	return 0;
 }
+

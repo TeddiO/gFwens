@@ -1,7 +1,20 @@
-#pragma once
-class fwensCallback
-{
+#include "sdk/public/steam/isteamgameserver.h"
+#include "GarrysMod/Lua/Interface.h"
 
-	void m_steamcallback_HandleCallbackRequest() {}
-	void HandleCallbackRequest() {}
+class Fwens
+{
+private:
+	GarrysMod::Lua::ILuaBase* LUA;
+
+	static Fwens* instance;
+	Fwens():
+		m_steamcallback_HandleCallbackRequest(this, &Fwens::HandleCallbackRequest)
+	{};
+	
+public:
+	Fwens(GSClientGroupStatus_t* group);
+	static Fwens* GetInstance();
+	void SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase);
+
+	STEAM_GAMESERVER_CALLBACK(Fwens, HandleCallbackRequest, GSClientGroupStatus_t, m_steamcallback_HandleCallbackRequest);
 };
