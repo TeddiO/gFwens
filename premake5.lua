@@ -1,61 +1,75 @@
--- x64 is experimental and not guaranteed to work. Pending on gmod actually getting 64 bit support. 
--- win32 suffix doesn't change currently as we don't know what the plan will be for this. Similar to how 
 -- linux / osx still get the .dll extension even though yknow, those are the wrong binary suffixes for those OS's
 
-platformAlias = {
-    ["windows"] = "win32",
-    ["linux"] = "linux",
-    ["macosx"] = "osx"
-}
-
-workspace "gfwens"
+workspace "gmsv_gfwens"
     configurations {"Debug", "Release"}
     platforms {"x32", "x64"}
 
 project "gmsv_gfwens"
     kind "SharedLib"
     language "C++"
-
     files { "src/*.cpp", "src/*.h" }
 
-    includedirs { "../gmodheaders/include", "../steamworks" }
-    targetname ("gmsv_fwens_" .. platformAlias[os.target()])
+    local gmodBaseDir =  os.getenv("GMODHEADERS") or ""
+    local steamworksBaseDir = os.getenv("STEAMWORKS_LIB_BASEDIR") or ""
+   
+    includedirs { "../gmodheaders/include", "../steamworks", gmodBaseDir, steamworksBaseDir}
+    targetname ("gmsv_fwens")
     targetprefix ""
     targetextension ".dll"
 
-    -- Debug | x32 / x64
-    filter { "configurations:Debug", "platforms:x32" }
+    filter "configurations:Debug"
         defines { "DEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        links { "../steamworks/sdk/redistributable_bin/steam_api.lib"}
         symbols "On"
-        targetdir "bin/x32/debug/"
-        objdir "bin/x32/debug/"
-        architecture "x32"
+        targetdir "bin/debug/"
+        objdir "bin/debug/"
 
-    filter { "configurations:Debug","platforms:x64" }
-        defines { "DEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        links { "../steamworks/sdk/redistributable_bin/win64/steam_api64.lib"}
-        symbols "On"
-        targetdir "bin/x64/debug/"
-        objdir "bin/x64/debug/"
-        architecture "x64"
-
-    -- Release | x32 / x64
-    filter { "configurations:Release","platforms:x32" }
+    filter "configurations:Release"
         defines { "NDEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        links { "../steamworks/sdk/redistributable_bin/steam_api.lib"}
         optimize "On"
-        targetdir "bin/x32/release/"
-        objdir "bin/x32/release/"
         symbols "off"
-        architecture "x32"
+        targetdir "bin/release/"
+        objdir "bin/release/"
 
-    filter { "configurations:Release", "platforms:x64" }
-        defines { "NDEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        links { "../steamworks/sdk/redistributable_bin/win64/steam_api64.lib"}
-        optimize "On"
-        targetdir "bin/x64/release/"
-        objdir "bin/x64/release/"
-        symbols "off"
-        architecture "x64"
- 
+    filter {"platforms:*32" }
+        architecture "x86"
+
+    filter {"platforms:*64" }
+        architecture "x86_64"
+
+    filter({"system:windows", "platforms:*32"})
+        targetsuffix("_win32")
+        if steamworksBaseDir ~= "" then 
+            links {steamworksBaseDir .. "/sdk/redistributable_bin/steam_api.lib"} 
+        else
+            links { "../steamworks/sdk/redistributable_bin/steam_api.lib"}
+        end
+
+    filter({"system:windows", "platforms:*64"})
+        targetsuffix("_win64")
+        
+        if steamworksBaseDir ~= "" then 
+            links {steamworksBaseDir .."/sdk/redistributable_bin/win64/steam_api64.lib"}
+        else
+            links { "../steamworks/sdk/redistributable_bin/win64/steam_api64.lib"}
+        end
+
+    filter({"system:linux", "platforms:*32"})
+        targetsuffix("_linux")
+        if steamworksBaseDir ~= "" then 
+            libdirs {steamworksBaseDir .. "/sdk/redistributable_bin/linux32/"}
+        else
+            libdirs {"../steamworks/sdk/redistributable_bin/linux32/"}
+        end
+        links {"steam_api"}
+
+    filter({"system:linux", "platforms:*64"})
+        targetsuffix("_linux64")
+        
+        if steamworksBaseDir ~= "" then 
+            libdirs {steamworksBaseDir .. "/sdk/redistributable_bin/linux64/"}
+        else
+            libdirs {"../steamworks/sdk/redistributable_bin/linux64/"}
+        end
+        links {"steam_api"}
+
+    filter {}

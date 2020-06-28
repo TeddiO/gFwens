@@ -7,13 +7,13 @@ using namespace GarrysMod::Lua;
 
 LUA_FUNCTION(GetInSteamGroup)
 {
-	if (!LUA->IsType(1, Type::STRING))
+	if (!LUA->IsType(1, Type::String))
 	{
 		LUA->ArgError(1, "expected string");
 		return 0;
 	}
 
-	if (!LUA->IsType(2, Type::STRING))
+	if (!LUA->IsType(2, Type::String))
 	{
 		LUA->ArgError(2, "expected string");
 		return 0;
@@ -22,8 +22,8 @@ LUA_FUNCTION(GetInSteamGroup)
 	const char* strSteamuser = LUA->GetString(1);
 	const char* strSteamGroup = LUA->GetString(2);
 
-	uint64 steamID64 = _atoi64(strSteamuser);
-	uint64 groupID64 = _atoi64(strSteamGroup);
+	uint64 steamID64 = strtoull(strSteamuser, NULL, 10);
+	uint64 groupID64 = strtoull(strSteamGroup, NULL, 10);
 
 	CSteamID player = CSteamID(steamID64);
 	if (!player.IsValid())

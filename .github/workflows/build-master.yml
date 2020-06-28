@@ -1,0 +1,171 @@
+name: Build gFwens (push to master)
+
+on:
+  push:
+    branches: [ master ]
+
+    paths-ignore:
+      - "README.md"
+      - 'examples/**'
+      - ".gitignore"
+      - ".github/workflows/build-master.yml" 
+
+env:
+  STEAMWORKS_LIB_BASEDIR: "./deps" 
+
+jobs:
+
+  fetch-dependencies:
+    runs-on: ubuntu-18.04
+    env:
+      STEAMWORKS_URL:  ${{ secrets.STEAMWORKS_SDK_URL }}
+    steps:
+    - run: |
+        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | busybox unzip -
+        wget $STEAMWORKS_URL -qO- | busybox unzip -
+        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -qO- | tar zxf -
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: premake-persistence
+        path: ./premake*
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: sdk-persistence
+        path: ./sdk*
+
+###
+
+  build-win:
+    runs-on: windows-2019
+    needs: fetch-dependencies
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        repository: facepunch/gmod-module-base
+        ref: refs/heads/development
+        path: gmodheaders
+
+    - uses: actions/checkout@v2
+      with:
+        path: gfwens
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: premake-persistence
+        path: gfwens
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: sdk-persistence
+        path: gfwens/deps
+
+    - uses: microsoft/setup-msbuild@v1.0.0
+
+    - run: |
+        cd gfwens
+        ./premake5.exe vs2019
+        MSBuild.exe /p:Configuration=Release
+        MSBuild.exe /p:Configuration=Release /property:Platform=x64
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gmsv_fwens_win32.dll
+        path: gfwens\bin\release\gmsv_fwens_win32.dll
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gmsv_fwens_win64.dll
+        path: gfwens\bin\release\gmsv_fwens_win64.dll
+
+###
+
+  build-linux:
+    runs-on: ubuntu-18.04
+    needs: fetch-dependencies
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        repository: facepunch/gmod-module-base
+        ref: refs/heads/development
+        path: gmodheaders
+
+    - uses: actions/checkout@v2
+      with:
+        path: gfwens
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: premake-persistence
+        path: gfwens
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: sdk-persistence
+        path: gfwens/deps
+
+    # We need multilib otherwise we'll get the wrong arch for *nix
+    - run: |
+        sudo apt install gcc-multilib g++-multilib -y
+        cd gfwens
+        chmod +x ./premake5
+        ./premake5 gmake2
+        make config=release_x32
+        make config=release_x64
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gmsv_fwens_linux.dll
+        path: gfwens/bin/release/gmsv_fwens_linux.dll
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gmsv_fwens_linux64.dll
+        path: gfwens/bin/release/gmsv_fwens_linux64.dll
+    
+  release:
+    runs-on: ubuntu-18.04
+    needs: [build-win, build-linux]
+
+    steps:
+                    
+      - name: Get short hash
+        id: gensha
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+      - uses: actions/download-artifact@v2  
+        with:
+          name: gmsv_fwens_linux.dll
+
+      - uses: actions/download-artifact@v2  
+        with:
+          name: gmsv_fwens_linux64.dll
+
+      - uses: actions/download-artifact@v2  
+        with:
+          name: gmsv_fwens_win32.dll
+
+      - uses: actions/download-artifact@v2  
+        with:
+          name: gmsv_fwens_win64.dll
+
+      - uses: ncipollo/release-action@v1
+        with: 
+          artifacts:  "*.dll"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.gensha.outputs.sha8 }}
+          omitBody: true
+
+      - uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            gmsv_fwens_win32.dll
+            gmsv_fwens_win64.dll
+            gmsv_fwens_linux.dll
+            gmsv_fwens_linux64.dll
+            premake-persistence
+            sdk-persistence
+    

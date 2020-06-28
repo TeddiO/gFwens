@@ -92,10 +92,12 @@ void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 
 void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 {
-	// CSteamID.Render() no longer appears to function, we'll cast these manually in a bit.
-	char userBuffer[64];
-	char groupBuffer[64];
+	// CSteamID.Render() no longer appears to function, we'll cast these manually.
+	char userBuffer[18];
+	char groupBuffer[19];
 
+	snprintf(userBuffer, sizeof(userBuffer), "%llu", pCallback->m_SteamIDUser.ConvertToUint64());
+	snprintf(groupBuffer, sizeof(groupBuffer), "%llu", pCallback->m_SteamIDGroup.ConvertToUint64());
 	
 	this->LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	this->LUA->GetField(-1, "hook");
@@ -109,10 +111,10 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 	this->LUA->PushBool(pCallback->m_bOfficer);
 	this->LUA->SetField(-2, "isOfficer");
 
-	this->LUA->PushString(_i64toa(pCallback->m_SteamIDUser.ConvertToUint64(), userBuffer, 10));
+	this->LUA->PushString(userBuffer);
 	this->LUA->SetField(-2, "steamID64");
 
-	this->LUA->PushString(_i64toa(pCallback->m_SteamIDGroup.ConvertToUint64(), groupBuffer, 10));
+	this->LUA->PushString(groupBuffer);
 	this->LUA->SetField(-2, "groupID64");
 
 	//Fix error handling here! Otherwise forever breaking badly
