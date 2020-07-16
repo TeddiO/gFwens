@@ -3,9 +3,9 @@
 
 Fwens* Fwens::instance = NULL;
 Fwens::~Fwens() {
-	if (this->GetSteamContextActive())
+	if (GetSteamContextActive())
 	{
-		this->ClearSteamContext();
+		ClearSteamContext();
 	}
 }
 
@@ -51,10 +51,10 @@ void Fwens::ClearSteamContext() {
 
 void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
 {
-	bool status = this->GetSteamContextActive();
+	bool status = GetSteamContextActive();
 	if (!status)
 	{
-		this->InitSteamAPIConnection();
+		InitSteamAPIConnection();
 		return;
 	}
 	steamContext_active = true;
@@ -62,10 +62,10 @@ void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
 
 void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* connnected)
 {
-	bool status = this->GetSteamContextActive();
+	bool status = GetSteamContextActive();
 	if (!status)
 	{
-		this->InitSteamAPIConnection();
+		InitSteamAPIConnection();
 		return;
 	}
 	steamContext_active = true;
@@ -74,10 +74,10 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* connnected)
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* something)
 {
 	steamContext_active = false;
-	bool status = this->GetSteamContextActive();
+	bool status = GetSteamContextActive();
 	if (!status)
 	{
-		this->InitSteamAPIConnection();
+		InitSteamAPIConnection();
 		return;
 	}
 	steamContext_active = true;
@@ -99,31 +99,39 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 	snprintf(userBuffer, sizeof(userBuffer), "%llu", pCallback->m_SteamIDUser.ConvertToUint64());
 	snprintf(groupBuffer, sizeof(groupBuffer), "%llu", pCallback->m_SteamIDGroup.ConvertToUint64());
 	
-	this->LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-	this->LUA->GetField(-1, "hook");
-	this->LUA->GetField(-1, "Run");
-	this->LUA->PushString("GroupDataReturned");
+	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	LUA->GetField(-1, "hook");
+	LUA->GetField(-1, "Run");
+		LUA->PushString("GroupDataReturned");
 
-	this->LUA->CreateTable();
-	this->LUA->PushBool(pCallback->m_bMember);
-	this->LUA->SetField(-2, "isMember");
+		LUA->CreateTable();
+			LUA->PushBool(pCallback->m_bMember);
+			LUA->SetField(-2, "isMember");
 
-	this->LUA->PushBool(pCallback->m_bOfficer);
-	this->LUA->SetField(-2, "isOfficer");
+			LUA->PushBool(pCallback->m_bOfficer);
+			LUA->SetField(-2, "isOfficer");
 
-	this->LUA->PushString(userBuffer);
-	this->LUA->SetField(-2, "steamID64");
+			LUA->PushString(userBuffer);
+			LUA->SetField(-2, "steamID64");
 
-	this->LUA->PushString(groupBuffer);
-	this->LUA->SetField(-2, "groupID64");
+			LUA->PushString(groupBuffer);
+			LUA->SetField(-2, "groupID64");
 
-	//Fix error handling here! Otherwise forever breaking badly
-	int returnValue = this->LUA->PCall(2, 0, 0);
-
+	int returnValue = LUA->PCall(2, 0, 0);
 	if (returnValue != 0) {
-		this->LUA->Remove(-2);
+		// Dump our two current tables to simplify this. Can't pop because LIFO.
+		LUA->Remove(1);
+		LUA->Remove(1);
+	
+		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		LUA->GetField(-1, "ErrorNoHalt");
+			LUA->Push(-3);
+			LUA->PushString("\n");
+		LUA->Call(2, 0);
+		LUA->Pop(2);
+		
 		return;
 	}
 
-	this->LUA->Pop(2);
+	LUA->Pop(2);
 }
