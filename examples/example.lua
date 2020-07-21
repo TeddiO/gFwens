@@ -2,10 +2,9 @@ require("fwens")
 
 local groupID = "103582791434672565" -- Steam Universe group (https://steamcommunity.com/groups/steamuniverse)
 -- When the player joins send a request to the module with the players SteamID64 and the 64 bit group id
--- in a string format. We get back a response whether or not Steam is alive at the time. If not, you may want
--- to requeue and try again in a bit.
+-- in a string format.
 hook.Add("PlayerInitialSpawn", "GrabGroupStatus", function(ply)
-	local success = fwens.GetInSteamGroup(ply:SteamID64(), groupID)
+	fwens.GetInSteamGroup(ply:SteamID64(), groupID)
 end)
 
 -- If we're successful then we'll receive a table with all the data in it. Following values returned are:
@@ -24,7 +23,7 @@ hook.Add( "GroupDataReturned", "GetGroupData", function(returnedData)
 		ply.groupStatus = {}
 	end
 
-	-- Recommended way if you plan on checking multipel groups.
+	-- Recommended way if you plan on checking multiple groups.
 	ply.groupStatus[returnedData.groupID64] = 
 	{
 		isMember = returnedData.isMember,
