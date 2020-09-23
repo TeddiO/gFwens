@@ -1,5 +1,5 @@
 #include "GarrysMod/Lua/Interface.h"
-#include "Fwens.h"
+#include "fwens.h"
 #include <stdlib.h>
 #include <stdio.h>
 
