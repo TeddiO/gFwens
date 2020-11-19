@@ -45,8 +45,8 @@ bool Fwens::GetSteamContextActive()
 }
 
 void Fwens::ClearSteamContext() {
-	steamContext.Clear();
 	steamContext_active = false;
+	steamContext.Clear();
 }
 
 void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
@@ -60,7 +60,7 @@ void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
 	steamContext_active = true;
 }
 
-void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* connnected)
+void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* policyResponse)
 {
 	bool status = GetSteamContextActive();
 	if (!status)
@@ -71,20 +71,17 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* connnected)
 	steamContext_active = true;
 }
 
-void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* something)
+void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* policyResponse)
 {
-	steamContext_active = false;
-	bool status = GetSteamContextActive();
-	if (!status)
-	{
-		InitSteamAPIConnection();
-		return;
-	}
-	steamContext_active = true;
+	ClearSteamContext();
 }
 
 void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 {
+	if (GetSteamContextActive() == false) {
+		return;
+	}
+
 	ISteamGameServer* steamGameServer = steamContext.SteamGameServer();
 	steamGameServer->RequestUserGroupStatus(player, groupID);
 }
