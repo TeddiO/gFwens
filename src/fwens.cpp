@@ -49,7 +49,7 @@ void Fwens::ClearSteamContext() {
 	steamContext.Clear();
 }
 
-void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* policyResponse)
+void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 {
 	bool status = GetSteamContextActive();
 	if (!status)
@@ -60,12 +60,12 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* policyResponse)
 	steamContext_active = true;
 }
 
-void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* policyResponse)
+void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 {
 	ClearSteamContext();
 }
 
-void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* policyResponse)
+void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 {
 	ClearSteamContext();
 }
