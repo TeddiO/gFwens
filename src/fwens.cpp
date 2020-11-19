@@ -13,7 +13,7 @@ Fwens::Fwens():
 	m_steamcallback_HandleConnected(this, &Fwens::Steam_HandleSteamConnected),
 	m_steamcallback_HandleGroupRequest(this, &Fwens::Steam_HandleGroupRequest),
 	m_steamcallback_HandleDisconnected(this, &Fwens::Steam_HandleOnDisconnect),
-	m_steamcallback_HandlePolicyResponse(this, &Fwens::Steam_HandleOnPolicyResponse)
+	m_steamcallback_HandleConnectionFailed(this, &Fwens::Steam_HandleConnectionFailed)
 {}
 
 Fwens* Fwens::GetInstance() {
@@ -49,17 +49,6 @@ void Fwens::ClearSteamContext() {
 	steamContext.Clear();
 }
 
-void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
-{
-	bool status = GetSteamContextActive();
-	if (!status)
-	{
-		InitSteamAPIConnection();
-		return;
-	}
-	steamContext_active = true;
-}
-
 void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* policyResponse)
 {
 	bool status = GetSteamContextActive();
@@ -72,6 +61,11 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* policyResponse)
 }
 
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* policyResponse)
+{
+	ClearSteamContext();
+}
+
+void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* policyResponse)
 {
 	ClearSteamContext();
 }

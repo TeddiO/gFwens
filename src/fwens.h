@@ -22,5 +22,6 @@ public:
 	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleSteamConnected, SteamServersConnected_t, m_steamcallback_HandleConnected);
 	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleGroupRequest, GSClientGroupStatus_t, m_steamcallback_HandleGroupRequest);
 	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleOnDisconnect, SteamServersDisconnected_t, m_steamcallback_HandleDisconnected);
-	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleOnPolicyResponse, GSPolicyResponse_t, m_steamcallback_HandlePolicyResponse);
+	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleConnectionFailed, SteamServerConnectFailure_t, m_steamcallback_HandleConnectionFailed);
+
 };
