@@ -73,12 +73,6 @@ GMOD_MODULE_OPEN()
 
 	Fwens* fwenVar = Fwens::GetInstance();
 	fwenVar->SetLuaInstance(LUA);
-
-	if (!fwenVar->GetSteamContextActive())
-	{
-		fwenVar->InitSteamAPIConnection();
-	}
-	
 	return 0;
 }
 
