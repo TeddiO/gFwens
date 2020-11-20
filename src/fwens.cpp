@@ -112,7 +112,6 @@ void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 	steamGameServer->RequestUserGroupStatus(player, groupID);
 }
 
-
 void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 {
 	// CSteamID.Render() no longer appears to function, we'll cast these manually.
