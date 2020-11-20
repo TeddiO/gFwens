@@ -46,12 +46,6 @@ LUA_FUNCTION(GetInSteamGroup)
 		return 0;
 	}
 
-	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-	LUA->GetField(-1, "print");
-	LUA->PushString("gfwens: about to request");
-	LUA->Call(1, 0);
-	LUA->Pop();
-
 	fwenVar->RequestUserGroupStatus(player, groupID);
 	return 0;
 }

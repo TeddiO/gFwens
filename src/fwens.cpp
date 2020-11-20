@@ -59,6 +59,10 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 	steamContext_active = true;
 }
 
+void Fwens::NotifyLuaSteamDisconnectionEvent()
+{
+
+}
 
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 {
@@ -78,15 +82,11 @@ void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 		return;
 	}*/
 
-	/*if (!result) {
-		return;
-	}
-
-	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	/*LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	LUA->GetField(-1, "print");
 	LUA->PushString("gfwens: aaaaaaaaaaaaaa");
 	LUA->Call(1, 0);
-	LUA->Pop();
+	LUA->Pop();*/
 
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 		LUA->GetField(-1, "print");
