@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 Fwens* Fwens::instance = NULL;
-Fwens::~Fwens() {
+Fwens::~Fwens() 
+{
 	if (GetSteamContextActive())
 	{
 		ClearSteamContext();
@@ -13,11 +14,13 @@ Fwens::Fwens():
 	m_steamcallback_HandleConnected(this, &Fwens::Steam_HandleSteamConnected),
 	m_steamcallback_HandleGroupRequest(this, &Fwens::Steam_HandleGroupRequest),
 	m_steamcallback_HandleDisconnected(this, &Fwens::Steam_HandleOnDisconnect),
-	m_steamcallback_HandlePolicyResponse(this, &Fwens::Steam_HandleOnPolicyResponse)
+	m_steamcallback_HandleConnectionFailed(this, &Fwens::Steam_HandleConnectionFailed)
 {}
 
-Fwens* Fwens::GetInstance() {
-	if (instance == NULL) {
+Fwens* Fwens::GetInstance() 
+{
+	if (instance == NULL) 
+	{
 		instance = new Fwens;
 	}
 
@@ -31,12 +34,8 @@ void Fwens::SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase)
 
 void Fwens::InitSteamAPIConnection()
 {
-	bool status = steamContext.Init();
-	if (!status)
-	{
-		return;
-	}
-	steamContext_active = true;
+	steamContext_active = steamContext.Init();
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 bool Fwens::GetSteamContextActive()
@@ -44,51 +43,82 @@ bool Fwens::GetSteamContextActive()
 	return steamContext_active;
 }
 
-void Fwens::ClearSteamContext() {
+void Fwens::ClearSteamContext() 
+{
+	steamContext_active = false;
 	steamContext.Clear();
+}
+
+void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
+{
+	if (!GetSteamContextActive()) 
+	{
+		InitSteamAPIConnection();
+		return;
+	}
+	steamContext_active = true;
+	NotifyLuaSteamConnectionEvent(steamContext_active);
+}
+
+void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
+{
+	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	LUA->GetField(-1, "hook");
+	LUA->GetField(-1, "Run");
+		LUA->PushString("GroupDataSteamStatusChanged");
+		LUA->PushBool(connected);
+
+	int returnValue = LUA->PCall(2, 0, 0);
+	if (returnValue != 0) 
+	{
+		LUA->Remove(1);
+		LUA->Remove(1);
+
+		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		LUA->GetField(-1, "ErrorNoHalt");
+		LUA->Push(-3);
+		LUA->PushString("\n");
+		LUA->Call(2, 0);
+	}
+
+	LUA->Pop(2);
+}
+
+void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
+{
 	steamContext_active = false;
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
-void Fwens::Steam_HandleOnPolicyResponse(GSPolicyResponse_t* policyResponse)
-{
-	bool status = GetSteamContextActive();
-	if (!status)
-	{
-		InitSteamAPIConnection();
-		return;
-	}
-	steamContext_active = true;
-}
-
-void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* connnected)
-{
-	bool status = GetSteamContextActive();
-	if (!status)
-	{
-		InitSteamAPIConnection();
-		return;
-	}
-	steamContext_active = true;
-}
-
-void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* something)
+void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 {
 	steamContext_active = false;
-	bool status = GetSteamContextActive();
-	if (!status)
+	if (!result->m_bStillRetrying) 
 	{
+		ClearSteamContext();
 		InitSteamAPIConnection();
 		return;
 	}
-	steamContext_active = true;
 }
 
 void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 {
+	if (GetSteamContextActive() == false) 
+	{
+		LUA->ThrowError("No connection to the Steam API. Is Steam up?");
+		return;
+	}
+
 	ISteamGameServer* steamGameServer = steamContext.SteamGameServer();
+	if (steamGameServer == NULL) 
+	{
+		// This shouldn't really ever happen. But when it rarely does, gracefully bow out.
+		LUA->ThrowError("ISteamGameServer is NULL. Invalid Steam connection.");
+		return;
+	}
+
 	steamGameServer->RequestUserGroupStatus(player, groupID);
 }
-
 
 void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 {
@@ -118,7 +148,8 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 			LUA->SetField(-2, "groupID64");
 
 	int returnValue = LUA->PCall(2, 0, 0);
-	if (returnValue != 0) {
+	if (returnValue != 0) 
+	{
 		// Dump our two current tables to simplify this. Can't pop because LIFO.
 		LUA->Remove(1);
 		LUA->Remove(1);
@@ -128,9 +159,6 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 			LUA->Push(-3);
 			LUA->PushString("\n");
 		LUA->Call(2, 0);
-		LUA->Pop(2);
-		
-		return;
 	}
 
 	LUA->Pop(2);

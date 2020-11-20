@@ -40,16 +40,9 @@ LUA_FUNCTION(GetInSteamGroup)
 	}
 
 	Fwens* fwenVar = Fwens::GetInstance();
-	if (!fwenVar->GetSteamContextActive())
-	{
-		LUA->ThrowError("No connection to the Steam API. Is Steam up?");
-		return 0;
-	}
-
 	fwenVar->RequestUserGroupStatus(player, groupID);
 	return 0;
 }
-
 
 GMOD_MODULE_OPEN()
 {
@@ -62,13 +55,14 @@ GMOD_MODULE_OPEN()
 		LUA->SetField(-2, "fwens");
 
 		LUA->GetField(-1, "print");
-		LUA->PushString("gfwens v1 loaded.");
+		LUA->PushString("gfwens v1.1 loaded.");
 		LUA->Call(1, 0);
 	LUA->Pop();
 
 	Fwens* fwenVar = Fwens::GetInstance();
 	fwenVar->SetLuaInstance(LUA);
 
+	// Exists for changelevel purposes. Will silently fail during first boot of the server.
 	if (!fwenVar->GetSteamContextActive())
 	{
 		fwenVar->InitSteamAPIConnection();
