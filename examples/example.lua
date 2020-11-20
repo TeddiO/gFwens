@@ -31,3 +31,9 @@ hook.Add( "GroupDataReturned", "GetGroupData", function(returnedData)
 	}
 end)
 
+-- In the event Steam goes down or something else changes, we can use "GroupDataSteamStatusChanged" to record this
+-- and queue up players that may be missing out on bonuses if fwens.GetInSteamGroup is telling us the Steam
+-- connection is dead. Passes a single boolean argument.
+hook.Add("GroupDataSteamStatusChanged", "SteamStatusChanged", function(boolConnected)
+	print("Do we have a valid connection to Steam?", boolConnected)
+end)
