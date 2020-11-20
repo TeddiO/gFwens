@@ -32,6 +32,7 @@ void Fwens::SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase)
 void Fwens::InitSteamAPIConnection()
 {
 	steamContext_active = steamContext.Init();
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 bool Fwens::GetSteamContextActive()
@@ -50,52 +51,47 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 		InitSteamAPIConnection();
 		return;
 	}
-
-	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-		LUA->GetField(-1, "print");
-		LUA->PushString("gfwens: We connected!");
-		LUA->Call(1, 0);
-	LUA->Pop();
 	steamContext_active = true;
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
-void Fwens::NotifyLuaSteamDisconnectionEvent()
+void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
 {
+	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	LUA->GetField(-1, "hook");
+	LUA->GetField(-1, "Run");
+		LUA->PushString("GroupDataSteamStatusChanged");
+		LUA->PushBool(connected);
 
+	int returnValue = LUA->PCall(2, 0, 0);
+	if (returnValue != 0) {
+		LUA->Remove(1);
+		LUA->Remove(1);
+
+		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		LUA->GetField(-1, "ErrorNoHalt");
+		LUA->Push(-3);
+		LUA->PushString("\n");
+		LUA->Call(2, 0);
+	}
+
+	LUA->Pop(2);
 }
 
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 {
-	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-		LUA->GetField(-1, "print");
-		LUA->PushString("gfwens: We disconnected!!");
-		LUA->Call(1, 0);
-	LUA->Pop();
 	steamContext_active = false;
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 {
 	steamContext_active = false;
-	/*if (!result->m_bStillRetrying) {
+	if (!result->m_bStillRetrying) {
 		ClearSteamContext();
+		InitSteamAPIConnection();
 		return;
-	}*/
-
-	/*LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-	LUA->GetField(-1, "print");
-	LUA->PushString("gfwens: aaaaaaaaaaaaaa");
-	LUA->Call(1, 0);
-	LUA->Pop();*/
-
-	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-		LUA->GetField(-1, "print");
-		LUA->PushString("gfwens: Connection failed, oh no!");
-		LUA->PushBool(result->m_bStillRetrying);
-		LUA->Call(2, 0);
-	LUA->Pop();
-	
-	//ClearSteamContext();*/
+	}
 }
 
 void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
@@ -108,7 +104,7 @@ void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 	ISteamGameServer* steamGameServer = steamContext.SteamGameServer();
 	if (steamGameServer == NULL) {
 		// This shouldn't really ever happen. But when it rarely does, gracefully bow out.
-		LUA->ThrowError("ISteamGameServer is NULL. Do you have a valid Steam connection?");
+		LUA->ThrowError("ISteamGameServer is NULL. Invalid Steam connection.");
 		return;
 	}
 
@@ -154,9 +150,6 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 			LUA->Push(-3);
 			LUA->PushString("\n");
 		LUA->Call(2, 0);
-		LUA->Pop(2);
-		
-		return;
 	}
 
 	LUA->Pop(2);

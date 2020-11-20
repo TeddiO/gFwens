@@ -67,6 +67,13 @@ GMOD_MODULE_OPEN()
 
 	Fwens* fwenVar = Fwens::GetInstance();
 	fwenVar->SetLuaInstance(LUA);
+
+	// Exists for changelevel purposes. Will silently fail during first boot of the server.
+	if (!fwenVar->GetSteamContextActive())
+	{
+		fwenVar->InitSteamAPIConnection();
+	}
+	
 	return 0;
 }
 
