@@ -98,6 +98,7 @@ void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 {
 	if (GetSteamContextActive() == false) 
 	{
+		LUA->ThrowError("No connection to the Steam API. Is Steam up?");
 		return;
 	}
 

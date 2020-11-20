@@ -40,12 +40,6 @@ LUA_FUNCTION(GetInSteamGroup)
 	}
 
 	Fwens* fwenVar = Fwens::GetInstance();
-	if (!fwenVar->GetSteamContextActive())
-	{
-		LUA->ThrowError("No connection to the Steam API. Is Steam up?");
-		return 0;
-	}
-
 	fwenVar->RequestUserGroupStatus(player, groupID);
 	return 0;
 }
