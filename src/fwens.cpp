@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 Fwens* Fwens::instance = NULL;
-Fwens::~Fwens() {
+Fwens::~Fwens() 
+{
 	if (GetSteamContextActive())
 	{
 		ClearSteamContext();
@@ -16,8 +17,10 @@ Fwens::Fwens():
 	m_steamcallback_HandleConnectionFailed(this, &Fwens::Steam_HandleConnectionFailed)
 {}
 
-Fwens* Fwens::GetInstance() {
-	if (instance == NULL) {
+Fwens* Fwens::GetInstance() 
+{
+	if (instance == NULL) 
+	{
 		instance = new Fwens;
 	}
 
@@ -40,14 +43,16 @@ bool Fwens::GetSteamContextActive()
 	return steamContext_active;
 }
 
-void Fwens::ClearSteamContext() {
+void Fwens::ClearSteamContext() 
+{
 	steamContext_active = false;
 	steamContext.Clear();
 }
 
 void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 {
-	if (!GetSteamContextActive()) {
+	if (!GetSteamContextActive()) 
+	{
 		InitSteamAPIConnection();
 		return;
 	}
@@ -64,7 +69,8 @@ void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
 		LUA->PushBool(connected);
 
 	int returnValue = LUA->PCall(2, 0, 0);
-	if (returnValue != 0) {
+	if (returnValue != 0) 
+	{
 		LUA->Remove(1);
 		LUA->Remove(1);
 
@@ -87,7 +93,8 @@ void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 {
 	steamContext_active = false;
-	if (!result->m_bStillRetrying) {
+	if (!result->m_bStillRetrying) 
+	{
 		ClearSteamContext();
 		InitSteamAPIConnection();
 		return;
@@ -103,7 +110,8 @@ void Fwens::RequestUserGroupStatus(CSteamID player, CSteamID groupID)
 	}
 
 	ISteamGameServer* steamGameServer = steamContext.SteamGameServer();
-	if (steamGameServer == NULL) {
+	if (steamGameServer == NULL) 
+	{
 		// This shouldn't really ever happen. But when it rarely does, gracefully bow out.
 		LUA->ThrowError("ISteamGameServer is NULL. Invalid Steam connection.");
 		return;
@@ -140,7 +148,8 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 			LUA->SetField(-2, "groupID64");
 
 	int returnValue = LUA->PCall(2, 0, 0);
-	if (returnValue != 0) {
+	if (returnValue != 0) 
+	{
 		// Dump our two current tables to simplify this. Can't pop because LIFO.
 		LUA->Remove(1);
 		LUA->Remove(1);
