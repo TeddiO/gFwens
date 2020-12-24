@@ -107,8 +107,8 @@ jobs:
   release:
     name: Build Cleanup
     runs-on: ubuntu-18.04
-    if: ${{ always() }}
-      needs: [build-linux, build-win]
+    if: always()
+    needs: [build-linux, build-win]
     
     steps:
       - uses: geekyeggo/delete-artifact@v1
