@@ -111,7 +111,6 @@ jobs:
       needs: [build-linux, build-win]
     
     steps:
-
       - uses: geekyeggo/delete-artifact@v1
         with:
           name: |
