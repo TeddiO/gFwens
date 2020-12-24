@@ -8,7 +8,6 @@ on:
       - "README.md"
       - 'examples/**'
       - ".gitignore"
-      - ".github/workflows/build-pr.yml" 
       - ".github/workflows/build-master.yml" 
 
 env:
