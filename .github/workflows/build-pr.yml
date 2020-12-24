@@ -1,8 +1,7 @@
 name: Build gFwens (pull request)
 
 on:
-  push:
-    pull_request:
+  pull_request:
 
     paths-ignore:
       - "README.md"
