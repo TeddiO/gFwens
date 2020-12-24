@@ -44,18 +44,30 @@ LUA_FUNCTION(GetInSteamGroup)
 	return 0;
 }
 
+#ifndef GFWENS_VERSION
+const char* GFWENS_VERSION = "LOCAL";
+const char* GFWENS_BUILD_DATE = __DATE__;
+#endif
+
 GMOD_MODULE_OPEN()
 {
+	const int buffSize = 60;
+	char versionBuffer[buffSize];
+	snprintf(versionBuffer, buffSize, "gfwens %s (%s) loaded.", GFWENS_VERSION, GFWENS_BUILD_DATE);
+
 	LUA->PushSpecial(SPECIAL_GLOB);
-		LUA->CreateTable();
+	LUA->CreateTable();
 
 		LUA->PushCFunction(GetInSteamGroup);
 		LUA->SetField(-2, "GetInSteamGroup");
 
+		LUA->PushString(GFWENS_VERSION);
+		LUA->SetField(-2, "version");
+
 		LUA->SetField(-2, "fwens");
 
 		LUA->GetField(-1, "print");
-		LUA->PushString("gfwens v1.1 loaded.");
+		LUA->PushString(versionBuffer);
 		LUA->Call(1, 0);
 	LUA->Pop();
 
@@ -67,7 +79,7 @@ GMOD_MODULE_OPEN()
 	{
 		fwenVar->InitSteamAPIConnection();
 	}
-	
+
 	return 0;
 }
 

@@ -11,6 +11,12 @@ project "gmsv_gfwens"
 
     local gmodBaseDir =  os.getenv("GMODHEADERS") or ""
     local steamworksBaseDir = os.getenv("STEAMWORKS_LIB_BASEDIR") or ""
+    local hashVersion = function() if os.getenv("GITHUB_SHA") ~= nil then 
+            return string.format("GitHub %s", string.sub(os.getenv("GITHUB_SHA"), 1, 8))
+        else 
+            return "UNKNOWN-GIT-SHA"
+        end 
+    end
    
     includedirs { "../gmodheaders/include", "../steamworks", gmodBaseDir, steamworksBaseDir}
     targetname ("gmsv_fwens")
@@ -18,13 +24,13 @@ project "gmsv_gfwens"
     targetextension ".dll"
 
     filter "configurations:Debug"
-        defines { "DEBUG", "_CRT_SECURE_NO_WARNINGS" }
+        defines { "DEBUG", "_CRT_SECURE_NO_WARNINGS", string.format("GFWENS_VERSION=%q", hashVersion()), string.format("GFWENS_BUILD_DATE=%q", os.date("%b %d %Y"))}
         symbols "On"
         targetdir "bin/debug/"
         objdir "bin/debug/"
 
     filter "configurations:Release"
-        defines { "NDEBUG", "_CRT_SECURE_NO_WARNINGS" }
+        defines { "NDEBUG", "_CRT_SECURE_NO_WARNINGS", string.format("GFWENS_VERSION=%q", hashVersion()), string.format("GFWENS_BUILD_DATE=%q", os.date("%b %d %Y"))}
         optimize "On"
         symbols "off"
         targetdir "bin/release/"
