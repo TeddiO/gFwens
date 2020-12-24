@@ -110,7 +110,7 @@ jobs:
 
     # We need multilib otherwise we'll get the wrong arch for *nix
     - run: |
-        sudo apt install gcc-multilib g++-multilib -y
+        sudo apt update && sudo apt install gcc-multilib g++-multilib -y
         cd gfwens
         chmod +x ./premake5
         ./premake5 gmake2

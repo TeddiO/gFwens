@@ -96,11 +96,22 @@ jobs:
         name: sdk-persistence
         path: gfwens/deps
 
-    # We need multilib otherwise we'll get the wrong arch for *nix
     - run: |
-        sudo apt install gcc-multilib g++-multilib -y
+        sudo apt update && sudo apt install gcc-multilib g++-multilib -y
         cd gfwens
         chmod +x ./premake5
         ./premake5 gmake2
         make config=release_x32
         make config=release_x64
+
+  release:
+    name: cleanup
+    runs-on: ubuntu-18.04
+    steps:
+
+      - uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            premake-persistence
+            sdk-persistence
+    
