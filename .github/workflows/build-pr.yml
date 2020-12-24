@@ -97,7 +97,7 @@ jobs:
         path: gfwens/deps
 
     - run: |
-        sudo apt update && sudo apt install gcc-multilib g++-multilib -y
+        sudo apt install gcc-multilib g++-multilib -y
         cd gfwens
         chmod +x ./premake5
         ./premake5 gmake2
