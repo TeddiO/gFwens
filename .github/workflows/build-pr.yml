@@ -31,7 +31,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: sdk-persistence-32
+        name: sdk-persistence-86
         path: ./sdk*
 
     # Dealing with the difference in the x64 steamworks requirements
