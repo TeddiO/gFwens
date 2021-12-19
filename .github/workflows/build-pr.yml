@@ -75,11 +75,13 @@ jobs:
         name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
+        
     - uses: microsoft/setup-msbuild@v1.0.2
-    - run: |
+    - name: "Compile Binary"
+      run: |
         cd gfwens
         ./premake5.exe vs2019
-        MSBuild.exe /p:Configuration=Release /property:x${{matrix.arch}}
+        MSBuild.exe /p:Configuration=Release /property:Platform=x${{matrix.arch}}
        # MSBuild.exe /p:Configuration=Release /property:Platform=x64
 ###
 
@@ -114,7 +116,8 @@ jobs:
         name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
-    - run: |
+    - name: "Compile Binary"
+      run: |
         sudo apt update && sudo apt install gcc-multilib g++-multilib -y
         cd gfwens
         chmod +x ./premake5
