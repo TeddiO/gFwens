@@ -75,7 +75,6 @@ jobs:
         name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
-    
     - uses: microsoft/setup-msbuild@v1.0.2
 
     # Dumb way of doing this but oh well. Saves fight premake on this.
@@ -102,9 +101,7 @@ jobs:
       matrix:
         arch: [32, 64]
 
-
     steps:
-
     - uses: actions/checkout@v2
       with:
         repository: facepunch/gmod-module-base
