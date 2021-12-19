@@ -75,13 +75,23 @@ jobs:
         name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
-        
+    
     - uses: microsoft/setup-msbuild@v1.0.2
+
+    # Dumb way of doing this but oh well. Saves fight premake on this.
     - name: "Compile Binary"
+      if: ${{ matrix.arch == 64 }}
       run: |
         cd gfwens
         ./premake5.exe vs2019
         MSBuild.exe /p:Configuration=Release /property:Platform=x${{matrix.arch}}
+
+    - name: "Compile Binary"
+      if: ${{ matrix.arch != 64 }}
+      run: |
+        cd gfwens
+        ./premake5.exe vs2019
+        MSBuild.exe /p:Configuration=Release
 ###
 
   build-linux:
