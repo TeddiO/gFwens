@@ -52,7 +52,7 @@ jobs:
 
     strategy:
       matrix:
-        arch: [32, 64]
+        arch: [86, 64]
 
     steps:
     - uses: actions/checkout@v2
