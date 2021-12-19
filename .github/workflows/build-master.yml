@@ -12,6 +12,7 @@ on:
 
 env:
   STEAMWORKS_LIB_BASEDIR: "./deps" 
+  STEAMWORKS_SDK_URL_150:  ${{ secrets.STEAMWORKS_SDK_URL_150 }}
 
 jobs:
 
