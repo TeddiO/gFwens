@@ -31,7 +31,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: sdk-persistence-86
+        name: sdk-persistence-32
         path: ./sdk*
 
     # Dealing with the difference in the x64 steamworks requirements
@@ -52,7 +52,7 @@ jobs:
 
     strategy:
       matrix:
-        arch: [86, 64]
+        arch: [32, 64]
 
     steps:
     - uses: actions/checkout@v2
@@ -82,7 +82,6 @@ jobs:
         cd gfwens
         ./premake5.exe vs2019
         MSBuild.exe /p:Configuration=Release /property:Platform=x${{matrix.arch}}
-       # MSBuild.exe /p:Configuration=Release /property:Platform=x64
 ###
 
   build-linux:
