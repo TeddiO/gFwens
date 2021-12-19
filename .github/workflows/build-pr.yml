@@ -13,11 +13,11 @@ env:
   STEAMWORKS_LIB_BASEDIR: "./deps" 
 
 jobs:
-
   fetch-dependencies:
     runs-on: ubuntu-18.04
     env:
       STEAMWORKS_URL:  ${{ secrets.STEAMWORKS_SDK_URL }}
+      STEAMWORKS_SDK_URL_150:  ${{ secrets.STEAMWORKS_SDK_URL_150 }}
     steps:
     - run: |
         wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | busybox unzip -
