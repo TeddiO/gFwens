@@ -26,12 +26,22 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: premake-persistence
+        name: premake-persistence-32
         path: ./premake*
 
     - uses: actions/upload-artifact@v2
       with:
-        name: sdk-persistence
+        name: sdk-persistence-32
+        path: ./sdk*
+
+    # Dealing with the difference in the x64 steamworks requirements
+    - run: |
+        rm -R ./sdk
+        wget $STEAMWORKS_SDK_URL_150 -qO- | busybox unzip -
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: sdk-persistence-64
         path: ./sdk*
 
 ###
@@ -39,8 +49,12 @@ jobs:
   build-win:
     runs-on: windows-2019
     needs: fetch-dependencies
-    steps:
 
+    strategy:
+      matrix:
+        arch: [32, 64]
+
+    steps:
     - uses: actions/checkout@v2
       with:
         repository: facepunch/gmod-module-base
@@ -58,21 +72,26 @@ jobs:
 
     - uses: actions/download-artifact@v2
       with:
-        name: sdk-persistence
+        name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
     - uses: microsoft/setup-msbuild@v1.0.2
-
     - run: |
         cd gfwens
         ./premake5.exe vs2019
-        MSBuild.exe /p:Configuration=Release
-        MSBuild.exe /p:Configuration=Release /property:Platform=x64
+        MSBuild.exe /p:Configuration=Release=x${{matrix.arch}}
+       # MSBuild.exe /p:Configuration=Release /property:Platform=x64
 ###
 
   build-linux:
     runs-on: ubuntu-18.04
     needs: fetch-dependencies
+
+    strategy:
+      matrix:
+        arch: [32, 64]
+
+
     steps:
 
     - uses: actions/checkout@v2
@@ -92,7 +111,7 @@ jobs:
 
     - uses: actions/download-artifact@v2
       with:
-        name: sdk-persistence
+        name: sdk-persistence-${{matrix.arch}}
         path: gfwens/deps
 
     - run: |
@@ -100,8 +119,7 @@ jobs:
         cd gfwens
         chmod +x ./premake5
         ./premake5 gmake2
-        make config=release_x32
-        make config=release_x64
+        make config=release_x${{matrix.arch}}
 
   release:
     name: Build Cleanup
@@ -114,5 +132,6 @@ jobs:
         with:
           name: |
             premake-persistence
-            sdk-persistence
+            sdk-persistence-32
+            sdk-persistence-64
     
