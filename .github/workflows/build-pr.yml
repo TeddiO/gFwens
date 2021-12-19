@@ -79,7 +79,7 @@ jobs:
     - run: |
         cd gfwens
         ./premake5.exe vs2019
-        MSBuild.exe /p:Configuration=Release=x${{matrix.arch}}
+        MSBuild.exe /p:Configuration=Release /property:x${{matrix.arch}}
        # MSBuild.exe /p:Configuration=Release /property:Platform=x64
 ###
 
