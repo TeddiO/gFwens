@@ -72,7 +72,7 @@ jobs:
 
     - uses: actions/download-artifact@v2
       with:
-        name: sdk-persistence-32
+        name: sdk-persistence-64
         path: gfwens/deps
 
     - uses: microsoft/setup-msbuild@v1.0.2
@@ -119,7 +119,7 @@ jobs:
 
     - uses: actions/download-artifact@v2
       with:
-        name: sdk-persistence-32
+        name: sdk-persistence-64
         path: gfwens/deps
 
     - name: "Compile Binary"
