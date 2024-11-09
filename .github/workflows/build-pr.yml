@@ -131,6 +131,18 @@ jobs:
         ./premake5 gmake2
         make config=release_x${{matrix.arch}}
 
+    - uses: actions/upload-artifact@v2
+      if: ${{ matrix.arch != 64 }}
+      with:
+        name: gmsv_fwens_linux.dll
+        path: gfwens/bin/release/gmsv_fwens_linux.dll
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ matrix.arch == 64 }}
+      with:
+        name: gmsv_fwens_linux${{matrix.arch}}.dll
+        path: gfwens/bin/release/gmsv_fwens_linux${{matrix.arch}}.dll
+
   # release:
   #   name: Build Cleanup
   #   runs-on: ubuntu-latest
