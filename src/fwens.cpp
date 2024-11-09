@@ -35,7 +35,7 @@ void Fwens::SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase)
 void Fwens::InitSteamAPIConnection()
 {
 	steamContext_active = steamContext.Init();
-	NotifyLuaSteamConnectionEvent(steamContext_active);
+	//NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 bool Fwens::GetSteamContextActive()
@@ -57,7 +57,7 @@ void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 		return;
 	}
 	steamContext_active = true;
-	NotifyLuaSteamConnectionEvent(steamContext_active);
+	//NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
@@ -87,7 +87,7 @@ void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 {
 	steamContext_active = false;
-	NotifyLuaSteamConnectionEvent(steamContext_active);
+	//NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
