@@ -14,7 +14,8 @@ env:
 
 jobs:
   fetch-dependencies:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+
     env:
       STEAMWORKS_URL:  ${{ secrets.STEAMWORKS_SDK_URL }}
       STEAMWORKS_SDK_URL_150:  ${{ secrets.STEAMWORKS_SDK_URL_150 }}
@@ -24,12 +25,12 @@ jobs:
         wget $STEAMWORKS_URL -qO- | busybox unzip -
         wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -qO- | tar zxf -
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: premake-persistence
         path: ./premake*
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: sdk-persistence-32
         path: ./sdk*
@@ -39,7 +40,7 @@ jobs:
         rm -R ./sdk
         wget $STEAMWORKS_SDK_URL_150 -qO- | busybox unzip -
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: sdk-persistence-64
         path: ./sdk*
@@ -55,27 +56,27 @@ jobs:
         arch: [32, 64]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         repository: facepunch/gmod-module-base
         ref: refs/heads/development
         path: gmodheaders
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: premake-persistence
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: sdk-persistence-64
         path: gfwens/deps
 
-    - uses: microsoft/setup-msbuild@v1.0.2
+    - uses: microsoft/setup-msbuild@v2
 
     # Dumb way of doing this but oh well. Saves fight premake on this.
     - name: "Compile Binary"
@@ -94,7 +95,7 @@ jobs:
 ###
 
   build-linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     needs: fetch-dependencies
 
     strategy:
@@ -102,22 +103,22 @@ jobs:
         arch: [32, 64]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         repository: facepunch/gmod-module-base
         ref: refs/heads/development
         path: gmodheaders
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: premake-persistence
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: sdk-persistence-64
         path: gfwens/deps
@@ -130,17 +131,17 @@ jobs:
         ./premake5 gmake2
         make config=release_x${{matrix.arch}}
 
-  release:
-    name: Build Cleanup
-    runs-on: ubuntu-18.04
-    if: always()
-    needs: [build-linux, build-win]
+  # release:
+  #   name: Build Cleanup
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   needs: [build-linux, build-win]
     
-    steps:
-      - uses: geekyeggo/delete-artifact@v1
-        with:
-          name: |
-            premake-persistence
-            sdk-persistence-32
-            sdk-persistence-64
+  #   steps:
+  #     - uses: geekyeggo/delete-artifact@v5
+  #       with:
+  #         name: |
+  #           premake-persistence
+  #           sdk-persistence-32
+  #           sdk-persistence-64
     
