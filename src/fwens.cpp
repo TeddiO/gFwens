@@ -35,7 +35,7 @@ void Fwens::SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase)
 void Fwens::InitSteamAPIConnection()
 {
 	steamContext_active = steamContext.Init();
-	//NotifyLuaSteamConnectionEvent(steamContext_active);
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 bool Fwens::GetSteamContextActive()
@@ -51,13 +51,13 @@ void Fwens::ClearSteamContext()
 
 void Fwens::Steam_HandleSteamConnected(SteamServersConnected_t* result)
 {
-	if (!GetSteamContextActive()) 
+	if (!GetSteamContextActive())
 	{
 		InitSteamAPIConnection();
 		return;
 	}
 	steamContext_active = true;
-	//NotifyLuaSteamConnectionEvent(steamContext_active);
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
@@ -69,11 +69,10 @@ void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
 		LUA->PushBool(connected);
 
 	int returnValue = LUA->PCall(2, 0, 0);
-	if (returnValue != 0) 
+	if (returnValue != 0)
 	{
 		LUA->Remove(1);
 		LUA->Remove(1);
-
 		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 		LUA->GetField(-1, "ErrorNoHalt");
 		LUA->Push(-3);
@@ -87,13 +86,13 @@ void Fwens::NotifyLuaSteamConnectionEvent(bool connected)
 void Fwens::Steam_HandleOnDisconnect(SteamServersDisconnected_t* result)
 {
 	steamContext_active = false;
-	//NotifyLuaSteamConnectionEvent(steamContext_active);
+	NotifyLuaSteamConnectionEvent(steamContext_active);
 }
 
 void Fwens::Steam_HandleConnectionFailed(SteamServerConnectFailure_t* result)
 {
 	steamContext_active = false;
-	if (!result->m_bStillRetrying) 
+	if (!result->m_bStillRetrying)
 	{
 		ClearSteamContext();
 		InitSteamAPIConnection();
@@ -128,7 +127,7 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 
 	snprintf(userBuffer, sizeof(userBuffer), "%llu", pCallback->m_SteamIDUser.ConvertToUint64());
 	snprintf(groupBuffer, sizeof(groupBuffer), "%llu", pCallback->m_SteamIDGroup.ConvertToUint64());
-	
+
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	LUA->GetField(-1, "hook");
 	LUA->GetField(-1, "Run");
@@ -148,12 +147,12 @@ void Fwens::Steam_HandleGroupRequest(GSClientGroupStatus_t* pCallback)
 			LUA->SetField(-2, "groupID64");
 
 	int returnValue = LUA->PCall(2, 0, 0);
-	if (returnValue != 0) 
+	if (returnValue != 0)
 	{
 		// Dump our two current tables to simplify this. Can't pop because LIFO.
 		LUA->Remove(1);
 		LUA->Remove(1);
-	
+
 		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 		LUA->GetField(-1, "ErrorNoHalt");
 			LUA->Push(-3);

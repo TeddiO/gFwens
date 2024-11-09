@@ -92,6 +92,11 @@ jobs:
         cd gfwens
         ./premake5.exe vs2019
         MSBuild.exe /p:Configuration=Release
+        
+    - uses: actions/upload-artifact@v4
+      with:
+        name: gmsv_fwens_win${{matrix.arch}}.dll
+        path: gfwens\bin\release\gmsv_fwens_win${{matrix.arch}}.dll
 ###
 
   build-linux:
@@ -142,6 +147,7 @@ jobs:
       with:
         name: gmsv_fwens_linux${{matrix.arch}}.dll
         path: gfwens/bin/release/gmsv_fwens_linux${{matrix.arch}}.dll
+
 
   # release:
   #   name: Build Cleanup
