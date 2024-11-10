@@ -85,10 +85,7 @@ GMOD_MODULE_OPEN()
 
 GMOD_MODULE_CLOSE()
 {
-#ifdef _WIN32
-	Fwens* fwenVar = Fwens::GetInstance();
-	delete fwenVar;
-#endif
+	Fwens::Destroy();
 	return 0;
 }
 

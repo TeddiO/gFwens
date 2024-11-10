@@ -13,11 +13,12 @@ private:
 public:
 	~Fwens();
 	static Fwens* GetInstance();
+	static void Destroy();
 	void InitSteamAPIConnection();
 	bool GetSteamContextActive();
 	void SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase);
 	void RequestUserGroupStatus(CSteamID player, CSteamID groupID);
-	void ClearSteamContext();	
+	void ClearSteamContext();
 	void NotifyLuaSteamConnectionEvent(bool connected);
 	
 	STEAM_GAMESERVER_CALLBACK(Fwens, Steam_HandleSteamConnected, SteamServersConnected_t, m_steamcallback_HandleConnected);
