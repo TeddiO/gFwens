@@ -17,21 +17,22 @@ env:
 jobs:
 
   fetch-dependencies:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       STEAMWORKS_URL:  ${{ secrets.STEAMWORKS_SDK_URL }}
     steps:
     - run: |
-        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | busybox unzip -
-        wget $STEAMWORKS_URL -qO- | busybox unzip -
+        apt-get update && apt-get install -y unzip
+        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | unzip -
+        wget $STEAMWORKS_URL -qO- | unzip -
         wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -qO- | tar zxf -
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: premake-persistence
         path: ./premake*
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: sdk-persistence-32
         path: ./sdk*
@@ -41,7 +42,7 @@ jobs:
         rm -R ./sdk
         wget $STEAMWORKS_SDK_URL_150 -qO- | busybox unzip -
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: sdk-persistence-64
         path: ./sdk*
@@ -56,28 +57,27 @@ jobs:
         arch: [32, 64]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         repository: facepunch/gmod-module-base
         ref: refs/heads/development
         path: gmodheaders
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: premake-persistence
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: sdk-persistence-64
         path: gfwens/deps
 
-    - uses: microsoft/setup-msbuild@v1.0.2
-
+    - uses: microsoft/setup-msbuild@v2
     # Dumb way of doing this but oh well. Saves fight premake on this.
     - name: "Compile Binary"
       if: ${{ matrix.arch == 64 }}
@@ -93,14 +93,14 @@ jobs:
         ./premake5.exe vs2019
         MSBuild.exe /p:Configuration=Release
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: gmsv_fwens_win${{matrix.arch}}.dll
         path: gfwens\bin\release\gmsv_fwens_win${{matrix.arch}}.dll
 ###
 
   build-linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     needs: fetch-dependencies
 
     strategy:
@@ -108,22 +108,22 @@ jobs:
         arch: [32, 64]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         repository: facepunch/gmod-module-base
         ref: refs/heads/development
         path: gmodheaders
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: premake-persistence
         path: gfwens
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: sdk-persistence-64
         path: gfwens/deps
@@ -136,20 +136,20 @@ jobs:
         ./premake5 gmake2
         make config=release_x${{matrix.arch}}
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ matrix.arch != 64 }}
       with:
         name: gmsv_fwens_linux.dll
         path: gfwens/bin/release/gmsv_fwens_linux.dll
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ matrix.arch == 64 }}
       with:
         name: gmsv_fwens_linux${{matrix.arch}}.dll
         path: gfwens/bin/release/gmsv_fwens_linux${{matrix.arch}}.dll
     
   release:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     needs: [build-win, build-linux]
 
     steps:
@@ -157,19 +157,19 @@ jobs:
         id: gensha
         run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
-      - uses: actions/download-artifact@v2  
+      - uses: actions/download-artifact@v4  
         with:
           name: gmsv_fwens_linux.dll
 
-      - uses: actions/download-artifact@v2  
+      - uses: actions/download-artifact@v4  
         with:
           name: gmsv_fwens_linux64.dll
 
-      - uses: actions/download-artifact@v2  
+      - uses: actions/download-artifact@v4  
         with:
           name: gmsv_fwens_win32.dll
 
-      - uses: actions/download-artifact@v2  
+      - uses: actions/download-artifact@v4  
         with:
           name: gmsv_fwens_win64.dll
 
@@ -180,7 +180,7 @@ jobs:
           tag: ${{ steps.gensha.outputs.sha8 }}
           omitBody: true
 
-      - uses: geekyeggo/delete-artifact@v1
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: |
             gmsv_fwens_win32.dll
