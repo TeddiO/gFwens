@@ -27,7 +27,7 @@ Fwens* Fwens::GetInstance()
 	return instance;
 }
 
-void Fwens::Destroy();
+void Fwens::Destroy()
 {
 	if (instance != NULL) 
 	{
