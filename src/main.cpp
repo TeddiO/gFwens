@@ -101,6 +101,14 @@ GMOD_MODULE_CLOSE()
 		Fwens* fwenVar = Fwens::GetInstance();
 		delete fwenVar;
 	}
+	else
+	{
+		LUA->PushSpecial(SPECIAL_GLOB);
+		LUA->CreateTable();
+		LUA->GetField(-1, "print");
+		LUA->PushString("We dont have a valid instance of fwens?");
+		LUA->Call(1, 0);
+	}
 
 	return 0;
 }

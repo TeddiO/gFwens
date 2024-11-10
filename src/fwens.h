@@ -14,7 +14,7 @@ public:
 	~Fwens();
 	static Fwens* GetInstance();
 	static bool IsInstanceValid();
-	void Destroy();
+	static void Destroy();
 	void InitSteamAPIConnection();
 	bool GetSteamContextActive();
 	void SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase);
