@@ -6,9 +6,7 @@ Fwens::~Fwens()
 {
 	if (GetSteamContextActive())
 	{
-#ifdef _WIN32
 		ClearSteamContext();
-#endif
 	}
 }
 
