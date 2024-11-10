@@ -92,11 +92,7 @@ jobs:
         cd gfwens
         ./premake5.exe vs2019
         MSBuild.exe /p:Configuration=Release
-        
-    - uses: actions/upload-artifact@v4
-      with:
-        name: gmsv_fwens_win${{matrix.arch}}.dll
-        path: gfwens\bin\release\gmsv_fwens_win${{matrix.arch}}.dll
+
 ###
 
   build-linux:
@@ -136,30 +132,17 @@ jobs:
         ./premake5 gmake2
         make config=release_x${{matrix.arch}}
 
-    - uses: actions/upload-artifact@v4
-      if: ${{ matrix.arch != 64 }}
-      with:
-        name: gmsv_fwens_linux.dll
-        path: gfwens/bin/release/gmsv_fwens_linux.dll
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ matrix.arch == 64 }}
-      with:
-        name: gmsv_fwens_linux${{matrix.arch}}.dll
-        path: gfwens/bin/release/gmsv_fwens_linux${{matrix.arch}}.dll
-
-
-  # release:
-  #   name: Build Cleanup
-  #   runs-on: ubuntu-latest
-  #   if: always()
-  #   needs: [build-linux, build-win]
+  release:
+    name: Build Cleanup
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [build-linux, build-win]
     
-  #   steps:
-  #     - uses: geekyeggo/delete-artifact@v5
-  #       with:
-  #         name: |
-  #           premake-persistence
-  #           sdk-persistence-32
-  #           sdk-persistence-64
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            premake-persistence
+            sdk-persistence-32
+            sdk-persistence-64
     
