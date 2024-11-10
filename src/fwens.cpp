@@ -36,11 +36,6 @@ void Fwens::Destroy()
 	}
 }
 
-bool Fwens::IsInstanceValid() 
-{
-	return instance != NULL;
-}
-
 void Fwens::SetLuaInstance(GarrysMod::Lua::ILuaBase* ILuaBase)
 {
 	LUA = ILuaBase;
