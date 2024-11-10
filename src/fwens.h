@@ -13,7 +13,7 @@ private:
 public:
 	~Fwens();
 	static Fwens* GetInstance();
-	bool IsInstanceValid();
+	static bool IsInstanceValid();
 	void Destroy();
 	void InitSteamAPIConnection();
 	bool GetSteamContextActive();

@@ -89,6 +89,7 @@ GMOD_MODULE_CLOSE()
 // 	Fwens* fwenVar = Fwens::GetInstance();
 // 	delete fwenVar;
 // #endif
+
 	if (Fwens::IsInstanceValid())
 	{
 		LUA->PushSpecial(SPECIAL_GLOB);
