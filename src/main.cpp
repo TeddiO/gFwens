@@ -85,31 +85,7 @@ GMOD_MODULE_OPEN()
 
 GMOD_MODULE_CLOSE()
 {
-// #ifdef _WIN32
-// 	Fwens* fwenVar = Fwens::GetInstance();
-// 	delete fwenVar;
-// #endif
-
-	if (Fwens::IsInstanceValid())
-	{
-		LUA->PushSpecial(SPECIAL_GLOB);
-		LUA->CreateTable();
-		LUA->GetField(-1, "print");
-		LUA->PushString("we have a valid instance of fwens?");
-		LUA->Call(1, 0);
-
-		Fwens* fwenVar = Fwens::GetInstance();
-		delete fwenVar;
-	}
-	else
-	{
-		LUA->PushSpecial(SPECIAL_GLOB);
-		LUA->CreateTable();
-		LUA->GetField(-1, "print");
-		LUA->PushString("We dont have a valid instance of fwens?");
-		LUA->Call(1, 0);
-	}
-
+	Fwens::Destroy();
 	return 0;
 }
 
