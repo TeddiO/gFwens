@@ -22,9 +22,8 @@ jobs:
       STEAMWORKS_URL:  ${{ secrets.STEAMWORKS_SDK_URL }}
     steps:
     - run: |
-        apt-get update && apt-get install -y unzip
-        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | unzip -
-        wget $STEAMWORKS_URL -qO- | unzip -
+        wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -qO- | busybox unzip -
+        wget $STEAMWORKS_URL -qO- | busybox unzip -
         wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -qO- | tar zxf -
 
     - uses: actions/upload-artifact@v4
